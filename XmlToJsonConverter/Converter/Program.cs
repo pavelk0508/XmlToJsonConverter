@@ -11,7 +11,7 @@ namespace Converter
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             if (args.Count() > 1)
             {
@@ -21,24 +21,43 @@ namespace Converter
                 XmlDocument doc = new XmlDocument();
                 if (File.Exists(fileName))
                 {
-                    doc.Load(fileName);
+                    try
+                    {
+                        doc.Load(fileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("ERROR. Неверный формат XML файла");
+                        return -1;
+                    }
                     XmlElement xml = doc.DocumentElement;
                     json.ReadXml(xml);
                     string result = "";
                     LibConverter.Converter xmljson = new LibConverter.Converter(json.Sublayers.First(), "");
                     xmljson.ConvertToText();
                     result = xmljson.GetText();
-                    File.WriteAllText(args[1], result);
+                    try
+                    {
+                        File.WriteAllText(args[1], result);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("ERROR. Ошибка записи в файл!");
+                        return -1;
+                    }
                     Console.WriteLine("Преобразование успешно завершено!");
+                    return 0;
                 }
                 else
                 {
-                    Console.WriteLine("Преобразование не выполнено. Не найден исходный файл.");
+                    Console.WriteLine("ERROR. Преобразование не выполнено. Не найден исходный файл.");
+                    return -1;
                 }
             }
             else
             {
-                Console.WriteLine("Укажите аргументы: test файл_исходный файл_назначения");
+                Console.WriteLine("ERROR. Укажите аргументы: test файл_исходный файл_назначения");
+                return -1;
             }
         }
     }
